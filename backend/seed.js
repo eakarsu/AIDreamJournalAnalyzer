@@ -153,6 +153,7 @@ async function seed() {
       dream_content TEXT,
       analysis_type VARCHAR(50),
       result TEXT,
+      ai_results JSONB DEFAULT '{}'::jsonb,
       created_at TIMESTAMP DEFAULT NOW()
     );
   `);

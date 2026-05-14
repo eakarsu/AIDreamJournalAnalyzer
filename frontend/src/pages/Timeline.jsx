@@ -11,7 +11,10 @@ export default function Timeline() {
   const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
-    fetch(`${API}/dreams`, { headers: apiHeaders() }).then(r => r.json()).then(setDreams).catch(() => {});
+    fetch(`${API}/dreams?limit=100`, { headers: apiHeaders() })
+      .then(r => r.json())
+      .then(d => setDreams(Array.isArray(d) ? d : (d.data || [])))
+      .catch(() => {});
   }, []);
 
   const analyzeDream = async (dream) => {

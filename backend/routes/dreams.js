@@ -6,11 +6,25 @@ const router = Router();
 
 router.get('/', auth, async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM dream_entries WHERE user_id = $1 ORDER BY dream_date DESC',
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const offset = (page - 1) * limit;
+
+    const countResult = await pool.query(
+      'SELECT COUNT(*) FROM dream_entries WHERE user_id = $1',
       [req.user.id]
     );
-    res.json(result.rows);
+    const total = parseInt(countResult.rows[0].count);
+    const totalPages = Math.ceil(total / limit);
+
+    const result = await pool.query(
+      'SELECT * FROM dream_entries WHERE user_id = $1 ORDER BY dream_date DESC LIMIT $2 OFFSET $3',
+      [req.user.id, limit, offset]
+    );
+    res.json({
+      data: result.rows,
+      pagination: { page, limit, total, totalPages }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -32,10 +46,22 @@ router.get('/:id', auth, async (req, res) => {
 router.post('/', auth, async (req, res) => {
   try {
     const { title, content, dream_date, mood, sleep_quality, is_lucid, category, tags } = req.body;
+
+    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+      return res.status(400).json({ error: 'title is required' });
+    }
+    if (!content || typeof content !== 'string' || content.trim().length === 0) {
+      return res.status(400).json({ error: 'content is required' });
+    }
+    if (!dream_date) {
+      return res.status(400).json({ error: 'date is required' });
+    }
+    const sanitizedContent = content.trim().slice(0, 10000);
+
     const result = await pool.query(
       `INSERT INTO dream_entries (user_id, title, content, dream_date, mood, sleep_quality, is_lucid, category, tags)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *`,
-      [req.user.id, title, content, dream_date, mood, sleep_quality, is_lucid || false, category, tags || []]
+      [req.user.id, title.trim(), sanitizedContent, dream_date, mood, sleep_quality, is_lucid || false, category, tags || []]
     );
     res.json(result.rows[0]);
   } catch (err) {

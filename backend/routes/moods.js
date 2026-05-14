@@ -6,11 +6,25 @@ const router = Router();
 
 router.get('/', auth, async (req, res) => {
   try {
-    const result = await pool.query(
-      'SELECT * FROM mood_entries WHERE user_id = $1 ORDER BY entry_date DESC',
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
+    const offset = (page - 1) * limit;
+
+    const countResult = await pool.query(
+      'SELECT COUNT(*) FROM mood_entries WHERE user_id = $1',
       [req.user.id]
     );
-    res.json(result.rows);
+    const total = parseInt(countResult.rows[0].count);
+    const totalPages = Math.ceil(total / limit);
+
+    const result = await pool.query(
+      'SELECT * FROM mood_entries WHERE user_id = $1 ORDER BY entry_date DESC LIMIT $2 OFFSET $3',
+      [req.user.id, limit, offset]
+    );
+    res.json({
+      data: result.rows,
+      pagination: { page, limit, total, totalPages }
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
