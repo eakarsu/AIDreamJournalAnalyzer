@@ -14,8 +14,10 @@ export default function DreamEntries() {
   const [form, setForm] = useState({ title: '', content: '', dream_date: '', mood: '', sleep_quality: 5, is_lucid: false, category: '', tags: '' });
 
   const loadDreams = () => {
-    fetch(`${API}/dreams`, { headers: apiHeaders() })
-      .then(r => r.json()).then(setDreams).catch(() => {});
+    fetch(`${API}/dreams?limit=100`, { headers: apiHeaders() })
+      .then(r => r.json())
+      .then(d => setDreams(Array.isArray(d) ? d : (d.data || [])))
+      .catch(() => {});
   };
 
   useEffect(() => { loadDreams(); }, []);

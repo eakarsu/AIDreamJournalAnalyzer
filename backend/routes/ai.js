@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import pool from '../db.js';
 import auth from '../middleware/auth.js';
+import { aiRateLimiter } from '../middleware/rateLimiter.js';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
@@ -21,7 +22,7 @@ async function callOpenRouter(prompt, systemPrompt) {
       'X-Title': 'AI Dream Journal Analyzer'
     },
     body: JSON.stringify({
-      model: process.env.OPENROUTER_MODEL || 'anthropic/claude-haiku-4.5',
+      model: process.env.OPENROUTER_MODEL || 'anthropic/claude-3-5-sonnet-20241022',
       messages: [
         { role: 'system', content: systemPrompt },
         { role: 'user', content: prompt }
@@ -35,7 +36,7 @@ async function callOpenRouter(prompt, systemPrompt) {
 }
 
 // Analyze a dream
-router.post('/analyze-dream', auth, async (req, res) => {
+router.post('/analyze-dream', auth, aiRateLimiter, async (req, res) => {
   try {
     const { dreamContent, title } = req.body;
     const systemPrompt = `You are an expert dream analyst and psychologist. Analyze the following dream and provide:
@@ -67,7 +68,7 @@ Be insightful, empathetic, and professional in your analysis.`;
 });
 
 // Detect patterns across dreams
-router.post('/detect-patterns', auth, async (req, res) => {
+router.post('/detect-patterns', auth, aiRateLimiter, async (req, res) => {
   try {
     const dreams = await pool.query(
       'SELECT title, content, mood, dream_date FROM dream_entries WHERE user_id = $1 ORDER BY dream_date DESC LIMIT 20',
@@ -107,7 +108,7 @@ Provide a comprehensive pattern analysis.`;
 });
 
 // Interpret dream symbols
-router.post('/interpret-symbol', auth, async (req, res) => {
+router.post('/interpret-symbol', auth, aiRateLimiter, async (req, res) => {
   try {
     const { symbol, context } = req.body;
     const systemPrompt = `You are an expert in dream symbolism drawing from Jungian psychology, Freudian analysis, and cultural symbolism. Provide a thorough interpretation of the dream symbol including:
@@ -130,7 +131,7 @@ router.post('/interpret-symbol', auth, async (req, res) => {
 });
 
 // Generate sleep recommendations
-router.post('/sleep-recommendations', auth, async (req, res) => {
+router.post('/sleep-recommendations', auth, aiRateLimiter, async (req, res) => {
   try {
     const sleepData = await pool.query(
       'SELECT * FROM sleep_quality WHERE user_id = $1 ORDER BY sleep_date DESC LIMIT 14',
@@ -170,7 +171,7 @@ router.post('/sleep-recommendations', auth, async (req, res) => {
 });
 
 // Lucid dream coaching
-router.post('/lucid-coaching', auth, async (req, res) => {
+router.post('/lucid-coaching', auth, aiRateLimiter, async (req, res) => {
   try {
     const { experience_level, goals } = req.body;
     const lucidDreams = await pool.query(
@@ -202,7 +203,7 @@ router.post('/lucid-coaching', auth, async (req, res) => {
 });
 
 // Dream journal summary
-router.post('/journal-summary', auth, async (req, res) => {
+router.post('/journal-summary', auth, aiRateLimiter, async (req, res) => {
   try {
     const { period } = req.body;
     const days = period === 'week' ? 7 : period === 'month' ? 30 : 90;

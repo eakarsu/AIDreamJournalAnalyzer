@@ -13,13 +13,19 @@ export default function AIAnalysis() {
   const [symbolInput, setSymbolInput] = useState('');
   const [symbolContext, setSymbolContext] = useState('');
   const [period, setPeriod] = useState('week');
+  const [trajectoryDays, setTrajectoryDays] = useState(30);
+  const [cbtDream, setCbtDream] = useState('');
+  const [lifestyleDays, setLifestyleDays] = useState(30);
   const [aiResult, setAiResult] = useState('');
   const [aiLoading, setAiLoading] = useState(false);
   const [history, setHistory] = useState([]);
   const [selectedHistory, setSelectedHistory] = useState(null);
 
   useEffect(() => {
-    fetch(`${API}/dreams`, { headers: apiHeaders() }).then(r => r.json()).then(setDreams).catch(() => {});
+    fetch(`${API}/dreams?limit=100`, { headers: apiHeaders() })
+      .then(r => r.json())
+      .then(d => setDreams(Array.isArray(d) ? d : (d.data || [])))
+      .catch(() => {});
     fetch(`${API}/ai/history`, { headers: apiHeaders() }).then(r => r.json()).then(setHistory).catch(() => {});
   }, []);
 
@@ -69,11 +75,44 @@ export default function AIAnalysis() {
     setAiLoading(false);
   };
 
+  const emotionTrajectory = async () => {
+    setAiLoading(true); setAiResult('');
+    try {
+      const res = await fetch(`${API}/ai/emotion-trajectory`, { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ days: parseInt(trajectoryDays, 10) || 30 }) });
+      if (res.status === 503) { const d = await res.json(); setAiResult(`AI not configured: ${d.error || 'OPENROUTER_API_KEY missing'}`); }
+      else { const data = await res.json(); setAiResult(data.analysis || data.error || 'No analysis returned.'); }
+    } catch { setAiResult('Error generating emotion trajectory.'); }
+    setAiLoading(false);
+  };
+
+  const lifestyleCorrelation = async () => {
+    setAiLoading(true); setAiResult('');
+    try {
+      const res = await fetch(`${API}/ai/lifestyle-correlation`, { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ days: parseInt(lifestyleDays, 10) || 30 }) });
+      if (res.status === 503) { const d = await res.json(); setAiResult(`AI not configured: ${d.error || 'OPENROUTER_API_KEY missing'}`); }
+      else { const data = await res.json(); setAiResult(data.analysis || data.error || 'No analysis returned.'); }
+    } catch { setAiResult('Error generating lifestyle correlation.'); }
+    setAiLoading(false);
+  };
+
+  const cbtSuggestions = async () => {
+    setAiLoading(true); setAiResult('');
+    try {
+      const res = await fetch(`${API}/ai/cbt-suggestions`, { method: 'POST', headers: apiHeaders(), body: JSON.stringify({ dream_id: parseInt(cbtDream, 10) }) });
+      if (res.status === 503) { const d = await res.json(); setAiResult(`AI not configured: ${d.error || 'OPENROUTER_API_KEY missing'}`); }
+      else { const data = await res.json(); setAiResult(data.analysis || data.error || 'No analysis returned.'); }
+    } catch { setAiResult('Error generating CBT suggestions.'); }
+    setAiLoading(false);
+  };
+
   const tabs = [
     { key: 'analyze', label: 'Dream Analysis' },
     { key: 'patterns', label: 'Pattern Detection' },
     { key: 'symbols', label: 'Symbol Interpretation' },
     { key: 'summary', label: 'Journal Summary' },
+    { key: 'trajectory', label: 'Emotion Trajectory' },
+    { key: 'cbt', label: 'CBT Suggestions' },
+    { key: 'lifestyle', label: 'Lifestyle Correlation' },
     { key: 'history', label: 'Analysis History' },
   ];
 
@@ -150,6 +189,45 @@ export default function AIAnalysis() {
             </select>
           </div>
           <button className="btn btn-ai" onClick={journalSummary} disabled={aiLoading}>Generate Summary</button>
+        </div>
+      )}
+
+      {activeTab === 'trajectory' && (
+        <div className="chart-container">
+          <h3>Emotion Trajectory</h3>
+          <p style={{ color: '#94a3b8', marginBottom: '16px' }}>Aggregate mood entries over a window for a longitudinal arc analysis.</p>
+          <div className="form-group">
+            <label>Window (days)</label>
+            <input type="number" min="1" max="365" value={trajectoryDays} onChange={e => setTrajectoryDays(e.target.value)} />
+          </div>
+          <button className="btn btn-ai" onClick={emotionTrajectory} disabled={aiLoading}>Analyze Trajectory</button>
+        </div>
+      )}
+
+      {activeTab === 'cbt' && (
+        <div className="chart-container">
+          <h3>CBT-Style Suggestions</h3>
+          <p style={{ color: '#94a3b8', marginBottom: '16px' }}>Get cognitive reframes and homework prompts based on a dream and nearby mood entries.</p>
+          <div className="form-group">
+            <label>Select dream</label>
+            <select value={cbtDream} onChange={e => setCbtDream(e.target.value)}>
+              <option value="">Choose a dream...</option>
+              {dreams.map(d => <option key={d.id} value={d.id}>{d.dream_date?.split('T')[0]} - {d.title}</option>)}
+            </select>
+          </div>
+          <button className="btn btn-ai" onClick={cbtSuggestions} disabled={!cbtDream || aiLoading}>Generate CBT Suggestions</button>
+        </div>
+      )}
+
+      {activeTab === 'lifestyle' && (
+        <div className="chart-container">
+          <h3>Lifestyle Correlation</h3>
+          <p style={{ color: '#94a3b8', marginBottom: '16px' }}>Correlate caffeine, alcohol, exercise, screen time, and meditation with sleep + dream quality. Add lifestyle logs via <code>POST /api/ai/lifestyle-logs</code>.</p>
+          <div className="form-group">
+            <label>Window (days)</label>
+            <input type="number" min="1" max="365" value={lifestyleDays} onChange={e => setLifestyleDays(e.target.value)} />
+          </div>
+          <button className="btn btn-ai" onClick={lifestyleCorrelation} disabled={aiLoading}>Analyze Correlations</button>
         </div>
       )}
 

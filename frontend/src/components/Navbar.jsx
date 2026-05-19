@@ -10,6 +10,14 @@ export default function Navbar({ user, onLogout }) {
         AI Dream Journal
       </span>
       <div className="navbar-right">
+        <a
+          href="/custom-views"
+          onClick={(e) => { e.preventDefault(); navigate('/custom-views'); }}
+          data-testid="sidebar-dream-views"
+          style={{ color: '#a5b4fc', fontWeight: 600, marginRight: 16, textDecoration: 'none', cursor: 'pointer' }}
+        >
+          Dream Views
+        </a>
         <span className="navbar-user">{user.name}</span>
         <button className="navbar-logout" onClick={onLogout}>Logout</button>
       </div>
