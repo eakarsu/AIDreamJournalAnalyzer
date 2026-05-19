@@ -19,6 +19,7 @@ import DreamSharing from './pages/DreamSharing';
 import Navbar from './components/Navbar';
 
 import Batch03Features from './pages/Batch03Features';
+import CustomViewsPage from './pages/CustomViewsPage';
 
 const API = '/api';
 
@@ -84,6 +85,7 @@ function App() {
           <Route path="/statistics" element={<Statistics />} />
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/dream-sharing" element={<DreamSharing />} />
+          <Route path="/custom-views" element={<CustomViewsPage />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
       </div>

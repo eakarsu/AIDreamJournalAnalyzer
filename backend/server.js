@@ -21,6 +21,7 @@ import aiNewRoutes from './routes/aiNew.js';
 import exportRoutes from './routes/export.js';
 import statsRoutes from './routes/stats.js';
 import sharingRoutes from './routes/sharing.js';
+import customViewsRoutes from './routes/customViews.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -70,6 +71,9 @@ app.use('/api/dream-collage', (await import('./routes/dreamCollage.js')).default
 app.use('/api/peer-pattern-match', (await import('./routes/peerPatternMatch.js')).default);
 app.use('/api/audio-dream', (await import('./routes/audioDreamCapture.js')).default);
 app.use('/api/art-music', (await import('./routes/artMusicGen.js')).default);
+
+// Mount custom views BEFORE any 404 handler
+app.use('/api/custom-views', customViewsRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
