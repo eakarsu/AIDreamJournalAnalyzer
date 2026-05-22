@@ -22,6 +22,7 @@ import exportRoutes from './routes/export.js';
 import statsRoutes from './routes/stats.js';
 import sharingRoutes from './routes/sharing.js';
 import customViewsRoutes from './routes/customViews.js';
+import nightmareTriggerPlanRoutes from './routes/nightmareTriggerPlan.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -65,6 +66,7 @@ app.use('/api/ai', aiNewRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/sharing', sharingRoutes);
+app.use('/api/nightmare-trigger-plan', nightmareTriggerPlanRoutes);
 app.use('/api/biometric-sync', (await import('./routes/biometricSync.js')).default);
 app.use('/api/nightmare-intervention', (await import('./routes/nightmareIntervention.js')).default);
 app.use('/api/dream-collage', (await import('./routes/dreamCollage.js')).default);

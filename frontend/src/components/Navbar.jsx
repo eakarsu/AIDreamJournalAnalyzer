@@ -11,6 +11,13 @@ export default function Navbar({ user, onLogout }) {
       </span>
       <div className="navbar-right">
         <a
+          href="/nightmare-trigger-plan"
+          onClick={(e) => { e.preventDefault(); navigate('/nightmare-trigger-plan'); }}
+          style={{ color: '#a5b4fc', fontWeight: 600, marginRight: 16, textDecoration: 'none', cursor: 'pointer' }}
+        >
+          Trigger Plan
+        </a>
+        <a
           href="/custom-views"
           onClick={(e) => { e.preventDefault(); navigate('/custom-views'); }}
           data-testid="sidebar-dream-views"

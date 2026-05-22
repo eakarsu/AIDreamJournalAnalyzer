@@ -16,10 +16,14 @@ import AIAnalysis from './pages/AIAnalysis';
 import Statistics from './pages/Statistics';
 import Timeline from './pages/Timeline';
 import DreamSharing from './pages/DreamSharing';
+import NightmareTriggerPlan from './pages/NightmareTriggerPlan';
 import Navbar from './components/Navbar';
 
 import Batch03Features from './pages/Batch03Features';
 import CustomViewsPage from './pages/CustomViewsPage';
+
+import CodexCustomVizFeature from './pages/CodexCustomVizFeature';
+import CodexOperationsFeature from './pages/CodexOperationsFeature';
 
 const API = '/api';
 
@@ -69,6 +73,9 @@ function App() {
       <Navbar user={user} onLogout={handleLogout} />
       <div className="main-content">
         <Routes>
+        <Route path="/codex/custom-viz" element={<CodexCustomVizFeature />} />
+        <Route path="/codex/operations" element={<CodexOperationsFeature />} />
+
           <Route path="/batch03" element={<Batch03Features />} />
           <Route path="/" element={<Dashboard />} />
           <Route path="/dreams" element={<DreamEntries />} />
@@ -85,6 +92,7 @@ function App() {
           <Route path="/statistics" element={<Statistics />} />
           <Route path="/timeline" element={<Timeline />} />
           <Route path="/dream-sharing" element={<DreamSharing />} />
+          <Route path="/nightmare-trigger-plan" element={<NightmareTriggerPlan />} />
           <Route path="/custom-views" element={<CustomViewsPage />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>
