@@ -8,6 +8,10 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '..', '.env') });
 
+if (process.env.CONFIRM_DEMO_SEED !== 'yes') {
+  throw new Error('Refusing destructive seed without CONFIRM_DEMO_SEED=yes');
+}
+
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 
 async function seed() {

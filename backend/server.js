@@ -23,10 +23,13 @@ import statsRoutes from './routes/stats.js';
 import sharingRoutes from './routes/sharing.js';
 import customViewsRoutes from './routes/customViews.js';
 import nightmareTriggerPlanRoutes from './routes/nightmareTriggerPlan.js';
+import privateJournalRoutes from './routes/privateJournal.js';
+import { validateRuntime } from './config/runtime.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 dotenv.config({ path: join(__dirname, '..', '.env') });
+validateRuntime();
 
 const app = express();
 const PORT = process.env.BACKEND_PORT || 3001;
@@ -61,18 +64,24 @@ app.use('/api/recurring-dreams', recurringDreamRoutes);
 app.use('/api/tags', tagRoutes);
 app.use('/api/goals', goalRoutes);
 app.use('/api/insights', insightRoutes);
-app.use('/api/ai', aiRoutes);
-app.use('/api/ai', aiNewRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/sharing', sharingRoutes);
 app.use('/api/nightmare-trigger-plan', nightmareTriggerPlanRoutes);
-app.use('/api/biometric-sync', (await import('./routes/biometricSync.js')).default);
-app.use('/api/nightmare-intervention', (await import('./routes/nightmareIntervention.js')).default);
-app.use('/api/dream-collage', (await import('./routes/dreamCollage.js')).default);
-app.use('/api/peer-pattern-match', (await import('./routes/peerPatternMatch.js')).default);
-app.use('/api/audio-dream', (await import('./routes/audioDreamCapture.js')).default);
-app.use('/api/art-music', (await import('./routes/artMusicGen.js')).default);
+app.use('/api/private-journal', privateJournalRoutes);
+
+// Generated model/biometric/peer-sharing surfaces are quarantined by default.
+// They are not part of the private journal's supported or production boundary.
+if (process.env.ENABLE_EXPERIMENTAL_FEATURES === 'true' && process.env.NODE_ENV !== 'production') {
+  app.use('/api/ai', aiRoutes);
+  app.use('/api/ai', aiNewRoutes);
+  app.use('/api/biometric-sync', (await import('./routes/biometricSync.js')).default);
+  app.use('/api/nightmare-intervention', (await import('./routes/nightmareIntervention.js')).default);
+  app.use('/api/dream-collage', (await import('./routes/dreamCollage.js')).default);
+  app.use('/api/peer-pattern-match', (await import('./routes/peerPatternMatch.js')).default);
+  app.use('/api/audio-dream', (await import('./routes/audioDreamCapture.js')).default);
+  app.use('/api/art-music', (await import('./routes/artMusicGen.js')).default);
+}
 
 // Mount custom views BEFORE any 404 handler
 app.use('/api/custom-views', customViewsRoutes);
@@ -81,13 +90,6 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-
-// === Batch 03 Gaps & Frontend Mounts ===
-try {
-  const _batch03 = require('./routes/batch03Gaps');
-  if (typeof authenticateToken === 'function') app.use('/api', authenticateToken, _batch03);
-  else app.use('/api', _batch03);
-} catch (_e) { /* batch03 gap routes optional */ }
 
 app.listen(PORT, () => {
   console.log(`Backend server running on http://localhost:${PORT}`);

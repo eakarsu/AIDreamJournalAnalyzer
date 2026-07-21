@@ -1,0 +1,7 @@
+# Private-journal operations and wellbeing boundary
+
+Run `scripts/bootstrap.sh`, create a unique 32-byte base64 journal key in `.env`, and apply `scripts/migrate.sh`. `start.sh` starts only installed application processes and stops only its own PIDs. It never installs, migrates, seeds, creates databases, or kills ports. The destructive legacy seed is isolated behind `CONFIRM_DEMO_SEED=yes`.
+
+`/api/private-journal` provides an owner-only vault, AES-256-GCM encrypted titles/body/reflections, authenticated per-entry context, bounded user-controlled tags, idempotent offline writes, metadata search, history revisions, JSON export, permanent ciphertext deletion, retention configuration, and audit events. Responses explicitly state that reflections are not clinical assessments. Generated AI, biometric, peer-matching, audio, art, and gap routes are quarantined by default and forbidden in production.
+
+The server-held encryption key protects database copies but is not end-to-end encryption; production deployment needs a managed KMS, rotation/re-encryption procedure, backup restore exercise, access logging, and incident response. Reminder and encrypted-backup providers remain disabled until configured and tested. Offline conflict resolution, screen-reader flows, recovery-key design, deletion from provider backups, and privacy review remain required before launch. The app does not diagnose, interpret mental health, or provide crisis care.
