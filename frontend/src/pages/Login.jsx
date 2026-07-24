@@ -27,8 +27,8 @@ export default function Login({ onLogin }) {
   };
 
   const autoFill = () => {
-    setEmail('demo@dreamjournal.com');
-    setPassword('demo1234');
+    setEmail(import.meta.env.VITE_DEMO_EMAIL || '');
+    setPassword(import.meta.env.VITE_DEMO_PASSWORD || '');
     setName('Dream Explorer');
     setIsRegister(false);
   };
