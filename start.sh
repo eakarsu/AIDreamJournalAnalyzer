@@ -3,6 +3,9 @@ set -euo pipefail
 project_dir="$(cd "$(dirname "$0")" && pwd)"; cd "$project_dir"
 [[ -f .env ]] || { echo "Missing .env; copy .env.example and configure it." >&2; exit 1; }
 [[ -d backend/node_modules && -d frontend/node_modules ]] || { echo "Dependencies missing; run scripts/bootstrap.sh." >&2; exit 1; }
+set -a
+. ./.env
+set +a
 if [[ "${NODE_ENV:-development}" == test && -z "${JOURNAL_ENCRYPTION_KEY_BASE64:-}" ]]; then
   export JOURNAL_ENCRYPTION_KEY_BASE64="${MEMORY_ENCRYPTION_KEY_BASE64:-cnVudGltZS1hY2NlcHRhbmNlLWtleS0zMi1ieXRlcyE=}"
 fi
