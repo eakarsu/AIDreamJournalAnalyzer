@@ -61,8 +61,8 @@ export default function Login({ onLogin }) {
           </button>
         </form>
 
-        <button className="auto-fill-btn" onClick={autoFill}>
-          Quick Login - Auto-fill Demo Credentials
+        <button className="auto-fill-btn" onClick={autoFill} aria-label="Auto Fill Demo Credentials">
+          Quick Login - Auto Fill Demo Credentials
         </button>
 
         <p style={{ textAlign: 'center', marginTop: '16px', fontSize: '13px', color: '#94a3b8' }}>
