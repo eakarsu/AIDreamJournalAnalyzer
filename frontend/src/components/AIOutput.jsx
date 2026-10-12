@@ -1,4 +1,5 @@
 import React from 'react';
+import JsonReport, { parseJsonValue } from './JsonReport';
 
 function formatAIText(text) {
   if (!text) return null;
@@ -71,6 +72,17 @@ export default function AIOutput({ text, loading }) {
   }
 
   if (!text) return null;
+
+  // AI responses that are structured JSON render through the shared professional
+  // report instead of being shown as a raw string.
+  const parsed = parseJsonValue(text);
+  if (parsed !== undefined && typeof parsed === 'object') {
+    return (
+      <div className="ai-output">
+        <JsonReport data={parsed} title="AI analysis" />
+      </div>
+    );
+  }
 
   return (
     <div className="ai-output">

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { API, apiHeaders } from '../App';
 import AIOutput from '../components/AIOutput';
+import FullFieldPresets from '../components/FullFieldPresets';
 
 export default function AIAnalysis() {
   const navigate = useNavigate();
@@ -135,6 +136,14 @@ export default function AIAnalysis() {
       {activeTab === 'analyze' && (
         <div className="chart-container">
           <h3>Analyze a Dream</h3>
+          <FullFieldPresets
+            onSelect={(v) => { setDreamTitle(v.dreamTitle); setDreamText(v.dreamText); }}
+            presets={[
+              { label: 'Recurring water dream', values: { dreamTitle: 'The flooded house', dreamText: 'I keep dreaming that the rooms of my childhood home fill with warm, clear water. I am not afraid; I swim through doorways looking for someone.' } },
+              { label: 'Falling then flying', values: { dreamTitle: 'Falling into flight', dreamText: 'I step off a cliff and fall, then remember I can fly. I glide over a coastal city at dusk, feeling exhilarated and unexpectedly calm.' } },
+              { label: 'Exam anxiety', values: { dreamTitle: 'The forgotten exam', dreamText: 'I arrive at a final exam with no preparation and cannot find the room. My heart races, then a stranger hands me a pencil and I begin to write.' } },
+            ]}
+          />
           <div className="form-group">
             <label>Select from your dreams</label>
             <select value={selectedDream} onChange={e => selectDream(e.target.value)}>
@@ -165,6 +174,14 @@ export default function AIAnalysis() {
       {activeTab === 'symbols' && (
         <div className="chart-container">
           <h3>Interpret a Dream Symbol</h3>
+          <FullFieldPresets
+            onSelect={(v) => { setSymbolInput(v.symbolInput); setSymbolContext(v.symbolContext); }}
+            presets={[
+              { label: 'Water', values: { symbolInput: 'Water', symbolContext: 'Calm, clear water in a childhood home; comforting rather than threatening.' } },
+              { label: 'Snake', values: { symbolInput: 'Snake', symbolContext: 'A green snake coiled on a garden path, watching without aggression.' } },
+              { label: 'Flying', values: { symbolInput: 'Flying', symbolContext: 'Gliding over a coastal city at dusk after falling from a cliff.' } },
+            ]}
+          />
           <div className="form-group">
             <label>Symbol</label>
             <input value={symbolInput} onChange={e => setSymbolInput(e.target.value)} placeholder="e.g., Water, Snake, Flying" />
@@ -180,6 +197,15 @@ export default function AIAnalysis() {
       {activeTab === 'summary' && (
         <div className="chart-container">
           <h3>Dream Journal Summary</h3>
+          <FullFieldPresets
+            value={{ period }}
+            onChange={(v) => setPeriod(v.period)}
+            presets={[
+              { label: 'Past week', values: { period: 'week' } },
+              { label: 'Past month', values: { period: 'month' } },
+              { label: 'Past quarter', values: { period: 'quarter' } },
+            ]}
+          />
           <div className="form-group">
             <label>Period</label>
             <select value={period} onChange={e => setPeriod(e.target.value)}>
@@ -195,6 +221,15 @@ export default function AIAnalysis() {
       {activeTab === 'trajectory' && (
         <div className="chart-container">
           <h3>Emotion Trajectory</h3>
+          <FullFieldPresets
+            value={{ days: trajectoryDays }}
+            onChange={(v) => setTrajectoryDays(v.days)}
+            presets={[
+              { label: 'Last 7 days', values: { days: 7 } },
+              { label: 'Last 30 days', values: { days: 30 } },
+              { label: 'Last 90 days', values: { days: 90 } },
+            ]}
+          />
           <p style={{ color: '#94a3b8', marginBottom: '16px' }}>Aggregate mood entries over a window for a longitudinal arc analysis.</p>
           <div className="form-group">
             <label>Window (days)</label>
@@ -222,6 +257,15 @@ export default function AIAnalysis() {
       {activeTab === 'lifestyle' && (
         <div className="chart-container">
           <h3>Lifestyle Correlation</h3>
+          <FullFieldPresets
+            value={{ days: lifestyleDays }}
+            onChange={(v) => setLifestyleDays(v.days)}
+            presets={[
+              { label: 'Last 7 days', values: { days: 7 } },
+              { label: 'Last 30 days', values: { days: 30 } },
+              { label: 'Last 90 days', values: { days: 90 } },
+            ]}
+          />
           <p style={{ color: '#94a3b8', marginBottom: '16px' }}>Correlate caffeine, alcohol, exercise, screen time, and meditation with sleep + dream quality. Add lifestyle logs via <code>POST /api/ai/lifestyle-logs</code>.</p>
           <div className="form-group">
             <label>Window (days)</label>
