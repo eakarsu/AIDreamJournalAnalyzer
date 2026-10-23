@@ -24,6 +24,7 @@ import sharingRoutes from './routes/sharing.js';
 import customViewsRoutes from './routes/customViews.js';
 import nightmareTriggerPlanRoutes from './routes/nightmareTriggerPlan.js';
 import privateJournalRoutes from './routes/privateJournal.js';
+import wave33bRoutes from './routes/wave33b.js';
 import { validateRuntime } from './config/runtime.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -69,6 +70,8 @@ app.use('/api/stats', statsRoutes);
 app.use('/api/sharing', sharingRoutes);
 app.use('/api/nightmare-trigger-plan', nightmareTriggerPlanRoutes);
 app.use('/api/private-journal', privateJournalRoutes);
+// Wave 33B: authenticated tasks and deterministic-first AI summaries (journal CSV/JSON export already exists)
+app.use('/api', wave33bRoutes());
 
 // Generated model/biometric/peer-sharing surfaces are quarantined by default.
 // They are not part of the private journal's supported or production boundary.

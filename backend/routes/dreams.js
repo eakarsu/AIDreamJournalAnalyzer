@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import pool from '../db.js';
 import auth from '../middleware/auth.js';
+import { filterRecords } from './wave33b.js';
 
 const router = Router();
 
@@ -9,6 +10,19 @@ router.get('/', auth, async (req, res) => {
     const page = Math.max(1, parseInt(req.query.page) || 1);
     const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 20));
     const offset = (page - 1) * limit;
+
+    // Search/filter (?q=, ?mood=, ?category=) reuses the tested wave filter over the caller's own dreams.
+    if (req.query.q !== undefined || req.query.mood !== undefined || req.query.category !== undefined) {
+      const all = await pool.query(
+        'SELECT * FROM dream_entries WHERE user_id = $1 ORDER BY dream_date DESC',
+        [req.user.id]
+      );
+      const filtered = filterRecords(all.rows, req.query);
+      return res.json({
+        data: filtered.slice(offset, offset + limit),
+        pagination: { page, limit, total: filtered.length, totalPages: Math.ceil(filtered.length / limit) }
+      });
+    }
 
     const countResult = await pool.query(
       'SELECT COUNT(*) FROM dream_entries WHERE user_id = $1',
